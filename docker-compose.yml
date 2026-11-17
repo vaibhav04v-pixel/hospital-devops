@@ -1,0 +1,143 @@
+# version: '3.8'
+
+# services:
+#   mysql:
+#     image: mysql:8.0
+#     ports:
+#       - "3307:3306"
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=password
+#       - MYSQL_DATABASE=cloudcare_db
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+#     networks:
+#       - app-network
+
+#   backend:
+#     build: ./backend
+#     ports:
+#       - "5000:5000"
+#     environment:
+#       - PORT=5000
+#       - MYSQL_HOST=mysql
+#       - MYSQL_USER=root
+#       - MYSQL_PASSWORD=password
+#       - MYSQL_DB=cloudcare_db
+#       - JWT_SECRET=dev_secret_key_change_in_production
+#       - ALLOWED_ORIGINS=http://localhost:5173
+#     depends_on:
+#       - mysql
+#     networks:
+#       - app-network
+
+#   frontend:
+#     build: ./frontend
+#     ports:
+#       - "5173:5173"
+#     environment:
+#       - VITE_API_URL=http://localhost:5000/api
+#     depends_on:
+#       - backend
+#     # Mount volume for hot reload in development
+#     volumes:
+#       - ./frontend/src:/app/src
+#     networks:
+#       - app-network
+
+# networks:
+#   app-network:
+#     driver: bridge
+
+# volumes:
+#   mysql_data:
+
+
+
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: cloudcare_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: cloudcare_db
+      NODE_ENV: development
+      JWT_SECRET: dev_secret_key_change_in_production
+      ALLOWED_ORIGINS: http://localhost:5173
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
